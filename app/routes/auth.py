@@ -3,6 +3,8 @@ import os
 from flask import Blueprint, jsonify, request
 from flask.cli import load_dotenv
 
+from flask_jwt_extended import create_access_token
+
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
 load_dotenv()  # Cargar variables de entorno desde el archivo .env
@@ -16,3 +18,6 @@ def get_token():
 
     if not auth or auth.username != username_auth or auth.password != password_auth:
         return {"message": "Faltan credenciales de autenticación."}, HTTPStatus.UNAUTHORIZED    
+    
+    token = create_access_token(identity=auth.username)
+    return {"token": token}, HTTPStatus.OK
