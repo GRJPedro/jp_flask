@@ -3,6 +3,8 @@ from http import HTTPStatus
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
 
+from flask_jwt_extended import jwt_required
+
 from app.extensions import db
 from app.models import Customer
 from app.schemas import CustomerSchema
@@ -13,6 +15,7 @@ customer_schema = CustomerSchema()
 
 
 @customers_bp.get('')
+@jwt_required()
 def get_all_customers():
     if request.args:
         try:
@@ -26,12 +29,14 @@ def get_all_customers():
 
 
 @customers_bp.get('/<int:id>')
+@jwt_required()
 def get_customer_by_id(id):
     customer = Customer.query.get_or_404(id)
     return jsonify(customer_schema.dump(customer)), HTTPStatus.OK
 
 
 @customers_bp.post('')
+@jwt_required() 
 def create_customer():
     try:
         data = customer_schema.load(request.json)
@@ -45,6 +50,7 @@ def create_customer():
 
 
 @customers_bp.put("/<int:id>")
+@jwt_required()
 def update_customer(id):
     try:
         data = customer_schema.load(request.json, partial=True)
@@ -66,6 +72,7 @@ def update_customer(id):
 
 
 @customers_bp.delete("/<int:id>")
+@jwt_required()
 def delete_customer(id):
     customer = Customer.query.get_or_404(id)
     db.session.delete(customer)
